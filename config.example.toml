@@ -1,0 +1,41 @@
+[bot]
+token = "token"
+extensions = ["jishaku", "cogs.help", "cogs.prefixes"]
+
+[prefixes]
+default_prefix = ">>>"
+cache_size = 1000
+max_length = 3
+
+[bot.args]
+case_insensitive = true
+strip_after_prefix = true
+owner_id = 800815694201337
+
+[bot.allowed_mentions]
+everyone = false
+users = true
+roles = false
+replied_user = false
+
+[environment]
+JISHAKU_HIDE = "1"
+JISHAKU_RETAIN = "1"
+JISHAKU_NO_UNDERSCORE = "1"
+JISHAKU_NO_DM_TRACEBACK = "1"
+
+[database]
+database = ""
+user = ""
+password = ""
+host = ""
+
+[redis]
+host = ""
+port = 6379
+password = ""
+db = 0
+
+[logging]
+webhook_url = "webhook url"
+levels = ["INFO", "WARNING"]

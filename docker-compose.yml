@@ -1,0 +1,12 @@
+services:
+  bot:
+    build: .
+    volumes:
+      - .:/bot
+  keydb:
+    image: "eqalpha/keydb"
+    ports:
+        - "6380:6380"
+    volumes:
+        - .:/bot
+    command: keydb-server /bot/keydb.conf

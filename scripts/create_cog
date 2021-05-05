@@ -1,0 +1,32 @@
+#!/usr/bin/env python3.10
+
+import sys
+
+file_name = sys.argv[1]
+
+script = f"""
+from __future__ import annotations
+
+from discord.ext import commands
+import discord
+from typing import TYPE_CHECKING
+
+import utils
+
+if TYPE_CHECKING:
+    from bot import Bot
+
+
+class {file_name.title()}(commands.Cog):
+    def __init__(self, bot: Bot):
+        self.bot = bot
+    
+
+def setup(bot: Bot):
+    bot.add_cog({file_name.title()}(bot))
+"""
+
+with open(f"./cogs/{file_name}.py", "w") as f:
+    f.write(script)
+
+print(f"Created cog at ./cogs/{file_name}.py")

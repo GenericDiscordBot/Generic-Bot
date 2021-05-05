@@ -1,0 +1,10 @@
+toml
+# git+https://github.com/MagicStack/asyncpg/
+git+https://github.com/rapptz/discord.py
+git+https://github.com/rapptz/discord-ext-menus
+git+https://github.com/aio-libs/aioredis-py#egg=aioredis[hiredis]
+# git+https://github.com/MagicStack/uvloop
+
+asyncpg
+uvloop
+jishaku
