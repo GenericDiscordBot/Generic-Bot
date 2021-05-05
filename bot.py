@@ -32,9 +32,8 @@ logging.basicConfig(level=logging.INFO)
 async def get_prefix(bot: Bot, message: discord.Message):
     if message.guild:
         if not (prefix := await bot.redis.get(str(message.guild.id))):
-            async with bot.pool.acquire() as con:
-                async with con.transaction():
-                    row = await con.fetchrow("select prefix from guild_configs where guild_id=$1", message.guild.id)
+            async with bot.acquire() as con:
+                row = await con.fetchrow("select prefix from guild_configs where guild_id=$1", message.guild.id)
         
             prefix = row["prefix"] if row else bot.config.prefixes.default_prefix
             await bot.redis.set(str(message.guild.id), prefix)
