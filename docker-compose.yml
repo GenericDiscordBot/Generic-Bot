@@ -10,3 +10,8 @@ services:
     volumes:
         - .:/bot
     command: keydb-server /bot/keydb.conf
+  dashboard:
+    build: web/
+    ports:
+      - "3000:3000"
+    
