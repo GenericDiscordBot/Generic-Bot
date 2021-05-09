@@ -1,16 +1,6 @@
 import {
     Box,
-    BoxProps,
     Button,
-    Container,
-    Flex,
-    Heading,
-    Icon,
-    SimpleGrid,
-    Stack,
-    Text,
-    useBreakpointValue,
-    useColorModeValue
 } from '@chakra-ui/react';
 import Header from "../components/header";
 import Head from 'next/head';
