@@ -1,4 +1,3 @@
-# (c) 2021-present Michael Hall
 FROM python:3.9.5-buster
 
 ENV LANG C.UTF-8
