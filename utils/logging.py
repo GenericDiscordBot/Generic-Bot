@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from discord import Webhook
 
+__slots__ = "WebhookHandler"
 
 class WebhookHandler(logging.Handler):
     def __init__(self, webhook: Webhook, levels):

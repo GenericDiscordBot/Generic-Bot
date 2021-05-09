@@ -8,3 +8,4 @@ git+https://github.com/aio-libs/aioredis-py#egg=aioredis[hiredis]
 asyncpg
 uvloop
 jishaku
+click

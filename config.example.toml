@@ -3,8 +3,7 @@ token = "token"
 extensions = ["jishaku", "cogs.help", "cogs.prefixes"]
 
 [prefixes]
-default_prefix = ">>>"
-cache_size = 1000
+default_prefixes = [">>>"]
 max_length = 3
 
 [bot.args]

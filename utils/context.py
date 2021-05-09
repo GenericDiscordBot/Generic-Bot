@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from bot import Bot
     from typing import Optional
 
+__slots__ = "Context"
+
 class Context(commands.Context):
     bot: Bot
 
@@ -28,7 +30,4 @@ class Context(commands.Context):
             kwargs["embed"] = content_or_embed
             content_or_embed = None
         
-        elif isinstance(content_or_embed, str):
-            content_or_embed = content_or_embed.title()
-
         return await super().send(content_or_embed, **kwargs)

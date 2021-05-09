@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     from typing import Tuple, Any
     from .bot import BotMixin
 
+__slots__ = "Reminder"
+
 class Reminder(commands.Cog):
     def __init__(self, bot: BotMixin):
         self.bot = bot

@@ -11,4 +11,4 @@ WORKDIR /bot
 
 RUN python3.9 -m pip install -r requirements.txt
 
-CMD ["python3.9", "bot.py", "configs/config-docker.toml"]
+CMD ["python3.9", "./launch", "--config", "configs/config-docker.toml"]

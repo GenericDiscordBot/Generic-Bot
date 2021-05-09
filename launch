@@ -1,0 +1,23 @@
+#!/usr/bin/env python3.9
+
+import click
+
+from bot import Bot
+
+__slots__ = ()
+
+class _List(click.ParamType):
+    def convert(self, value: str, *_):
+        return value.split(",")
+
+List = _List()
+
+@click.command()
+@click.option("--config", default="configs/config.toml")
+@click.option("--shard_id", type=int, default=None)
+@click.option("--shard_ids", type=List, default=None)
+@click.option("--shard_count", type=int, default=None)
+def run(config, shard_count, shard_ids, shard_id):
+    Bot.run(config, shard_ids=shard_ids, shard_count=shard_count, shard_id=shard_id)
+
+run()

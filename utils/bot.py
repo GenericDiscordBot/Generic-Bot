@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from asyncpg import Pool, Connection
 
+__slots__ = ("BotMeta", "BotMixin")
+
 class BotMeta(type):
     def __new__(cls, name, bases, attrs, **kwargs):
         bot = super().__new__(cls, name, bases, attrs)

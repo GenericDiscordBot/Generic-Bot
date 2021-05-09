@@ -1,6 +1,8 @@
 from collections.abc import Mapping
 from typing import Any
 
+__slots__ = "Config"
+
 class BaseNamespace(Mapping[str, Any]):
     def __init__(self, data: dict):
         self._data = data
@@ -18,7 +20,13 @@ class BaseNamespace(Mapping[str, Any]):
         try:
             return super().__getattribute__(key)  # type: ignore
         except AttributeError:
-            return self._data[key]
+            try:
+                return self._data[key]
+            except KeyError:
+                raise AttributeError
+
+    def __or__(self, other: Mapping):
+        return self.__class__(self._data | dict(other))
 
 class Bot(BaseNamespace):
     def __init__(self, data):

@@ -1,3 +1,5 @@
+__slots__ = "LRUDict"
+
 class LRUDict(dict):
     def __init__(self, max_size: int = 1024, *args, **kwargs):
         if max_size <= 0:
