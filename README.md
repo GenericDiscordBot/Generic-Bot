@@ -12,3 +12,30 @@ A bot template with basic stuff implemented, this uses postgresql and keydb (a r
 - `python bot.py`
 - ???
 - profit
+
+
+## TODO
+- [ ] clusters (k3s/k8s/nomad/diy)
+- [ ] public dashboard for configs
+- [ ] owner dashboard
+    - [ ] grafana
+    - [ ] prometheus
+
+- [ ] payment systems
+    - [ ] stripe
+    - [ ] paypal
+    - [ ] patreon
+
+- [ ] message broker for dashboard <-> bot
+- [ ] proper launcher (ties in with clusters)
+- [ ] error handling
+- [ ] sentry/logstash
+- [ ] seemless scaling with clusters
+
+- [ ] paginator
+- [ ] menus
+- [ ] comments around the code
+- [ ] better instructions on usage
+
+- [ ] 20 ft rope
+- [ ] towel
