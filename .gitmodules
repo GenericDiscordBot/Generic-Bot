@@ -1,0 +1,6 @@
+[submodule "Dashboard"]
+	path = web
+	url = git@github.com:GenericDiscordBot/Dashboard.git
+[submodule "http-server"]
+	path = http-server
+	url = git@github.com:GenericDiscordBot/http-server.git
