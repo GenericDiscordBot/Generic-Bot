@@ -1,6 +1,6 @@
 toml
 # git+https://github.com/MagicStack/asyncpg/
-git+https://github.com/rapptz/discord.py
+git+https://github.com/rapptz/discord.py@8b2241916a9d954355a69b397b135c09af0ef467#egg=discord.py[voice]
 git+https://github.com/rapptz/discord-ext-menus
 git+https://github.com/aio-libs/aioredis-py#egg=aioredis[hiredis]
 # git+https://github.com/MagicStack/uvloop
@@ -9,3 +9,6 @@ asyncpg
 uvloop
 jishaku
 click
+asyncio-nats-client
+prometheus_client
+psutil

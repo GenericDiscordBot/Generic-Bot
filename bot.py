@@ -13,6 +13,7 @@ import os
 import logging
 import aioredis
 import uvloop
+import time
 from typing import TYPE_CHECKING
 
 import utils
@@ -25,27 +26,23 @@ __slots__ = "Bot"
 logging.basicConfig(level=logging.INFO)
 
 async def get_prefix(bot: Bot, message: discord.Message):
-    prefixes: list[str]
-
     if message.guild:
-        if (prefixes := await bot.redis.lrange(str(message.guild.id), 0, -1)) is None:
+        if (prefix := await bot.redis.get(str(message.guild.id))) is None:
             async with bot.acquire() as con:
-                rows = await con.fetch("select prefix from prefixes where guild_id=$1", message.guild.id)
+                prefix = await con.fetchval("select prefix from prefixes where guild_id=$1", message.guild.id)
 
-            if rows:
-                prefixes = [row["prefix"] for row in rows]
-            else:
-                prefixes = bot.config.prefixes.default_prefixes
+                if not prefix:
+                    prefix = bot.config.prefixes.default_prefix
 
-            await bot.redis.rpush(str(message.guild.id), *prefixes)
+                await bot.redis.set(str(message.guild.id), prefix)
     else:
-        prefixes = bot.config.prefixes.default_prefix
+        prefix = bot.config.prefixes.default_prefix
 
-    return commands.when_mentioned_or(*prefixes)(bot, message)
+    return commands.when_mentioned_or(prefix)(bot, message)
 
-class Bot(utils.BotMixin):
-    def __init__(self, config: utils.Config, session: aiohttp.ClientSession, redis: aioredis.Redis, pool: asyncpg.Pool, **kwargs):
-        super().__init__(command_prefix=get_prefix, **config.bot.args | kwargs, allowed_mentions=discord.AllowedMentions(**config.bot.allowed_mentions))
+class Bot(utils.Bot):
+    def __init__(self, config: utils.Config, session: aiohttp.ClientSession, redis: aioredis.Redis, pool: asyncpg.Pool, nats: utils.ClientWrapper, **kwargs):
+        super().__init__(command_prefix=get_prefix, **config.bot.args, **kwargs, allowed_mentions=discord.AllowedMentions(**config.bot.allowed_mentions))
         
         self.config = config
         
@@ -55,11 +52,13 @@ class Bot(utils.BotMixin):
         self.logger = logging.getLogger("generic_bot")
         self.logger.addHandler(handler)
 
+        self.nats = nats
         self.redis = redis
         self.session = session
         self.pool = pool
         self.counter = collections.Counter[str]()
-        
+        self.start_time = time.time()
+
         for key, value in self.config.environment.items():
             os.environ[key] = value
 
@@ -75,21 +74,9 @@ class Bot(utils.BotMixin):
     async def on_ready(self):
         self.logger.info(f'Logged on as {self.user} (ID: {self.user.id})')
 
-    async def on_socket_responses(self, msg: DiscordPayload):
+    async def on_socket_response(self, msg: DiscordPayload):
         if msg["op"] == 0 and (event := msg["t"]) is not None:
             self.counter[event] += 1
-
-    @commands.command()
-    async def ping(self, ctx):
-        """ping command"""
-        await ctx.send("Pong")
-
-    @commands.command()
-    async def events(self, ctx):
-        """Shows all events the bot has received"""
-        events = self.counter.most_common(10)
-        events = "\n".join(f"{event}: {amount}" for (event, amount) in events)
-        await ctx.send(f"```\n{events}\n```")
 
     @classmethod
     def run(cls, config_file: str, **kwargs):
@@ -97,41 +84,35 @@ class Bot(utils.BotMixin):
             with open(config_file) as file:
                 config = utils.Config(toml.load(file))
 
-            async with aiohttp.ClientSession() as session, aioredis.Redis(**config.redis, decode_responses=True) as redis, asyncpg.create_pool(**config.database) as pool:
-                bot = cls(config, session, redis, pool, **kwargs)
+            async with aiohttp.ClientSession() as session, aioredis.Redis(**config.redis, decode_responses=True) as redis, asyncpg.create_pool(**config.database) as pool, utils.nats_connect(config.nats.url) as nats:
+                bot = cls(config, session, redis, pool, nats, **kwargs)
+
+                for cog in bot.cogs.values():
+                    if func := getattr(cog, "__ainit__", None):
+                        await func()
+
                 try:
                     await bot.start(config.bot.token)
                 finally:
                     await bot.close()
-        
+
         uvloop.install()
         asyncio.run(runner())
 
-    async def get_guild_prefixes(self, guild_id: int) -> list[str]:
+    async def get_guild_prefix(self, guild_id: int) -> list[str]:
         # in theory this should always exist in the cache if they have a custom prefix as get_prefix loads it into the cache
-        return await self.redis.lrange(str(guild_id), 0, -1)
+        return await self.redis.get(str(guild_id))
     
-    async def add_guild_prefix(self, guild_id: int, prefix: str):
-        await self.redis.lpush(str(guild_id), prefix)
+    async def set_guild_prefix(self, guild_id: int, prefix: str):
+        await self.redis.set(str(guild_id), prefix)
         async with self.acquire() as connection:
-            await connection.execute("insert into prefixes(guild_id, prefix) values ($1, $2)", guild_id, prefix)
+            await connection.execute("insert into prefixes(guild_id, prefix) values ($1, $2) on conflict (guild_id) do update set prefix=$2 where prefixes.guild_id=$1", guild_id, prefix)
 
     async def remove_guild_prefix(self, guild_id: int, prefix: str) -> bool:
-        status = await self.redis.lrem(str(guild_id), 0, prefix)
+        # see get_guild_prefix on why i can pin this on redis
+        status = await self.redis.delete(str(guild_id))
         if status:
             async with self.acquire() as connection:
                 await connection.execute("delete from prefixes where guild_id=$1 and prefix=$2", guild_id, prefix)
         
         return bool(status)
-
-    async def on_guild_join(self, guild: discord.Guild):
-        await self.redis.lpush(str(guild.id), *self.config.prefixes.default_prefixes)
-        async with self.acquire() as connection:
-            await connection.execute("insert into guild_configs(guild_id) values($1)", guild.id)
-
-            default_prefixes = self.config.prefixes.default_prefixes
-
-            prefixes = iter(default_prefixes)
-            values = [(guild.id, next(prefixes)) for _ in range(len(default_prefixes))]
-
-            await connection.executemany("insert into prefixes(guild_id, prefix) values($1, $2)", values)

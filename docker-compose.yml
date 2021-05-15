@@ -1,8 +1,8 @@
 services:
   bot:
     build: .
-    volumes:
-      - .:/bot
+    ports:
+      - 6969:6969
   keydb:
     image: "eqalpha/keydb"
     ports:
@@ -10,8 +10,27 @@ services:
     volumes:
         - .:/bot
     command: keydb-server /bot/keydb.conf
-  dashboard:
-    build: web/
+  #dashboard:
+  #  build: web/
+  #  ports:
+  #    - 3000:3000
+  nats:
+    image: nats
     ports:
-      - "3000:3000"
-    
+      - 4222:4222
+      - 8222:8222
+    command: [ "-p", "4222", "-m", "8222"]
+  grafana:
+    image: "grafana/grafana:latest"
+    ports:
+      - 4000:3000
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+  http-server:
+    build:
+      dockerfile: ./httpserver/Dockerfile
+      context: ./
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/httpserver

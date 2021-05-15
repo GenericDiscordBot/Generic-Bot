@@ -1,6 +1,13 @@
 __slots__ = "LRUDict"
 
 class LRUDict(dict):
+    """Simple LRUDict for storage
+
+    Parameters
+    -----------
+    max_size: int
+        The max size of the dict
+    """
     def __init__(self, max_size: int = 1024, *args, **kwargs):
         if max_size <= 0:
             raise ValueError('Maximum cache size must be greater than 0.')

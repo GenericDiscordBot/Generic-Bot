@@ -16,6 +16,7 @@ import utils
 if TYPE_CHECKING:
     from bot import Bot
 
+__slots__ = "setup"
 
 class {file_name.title()}(commands.Cog):
     def __init__(self, bot: Bot):

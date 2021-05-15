@@ -26,7 +26,7 @@ class BaseNamespace(Mapping[str, Any]):
                 raise AttributeError
 
     def __or__(self, other: Mapping):
-        return self.__class__(self._data | dict(other))
+        return self.__class__({**self._data, **other})
 
 class Bot(BaseNamespace):
     def __init__(self, data):
@@ -43,3 +43,5 @@ class Config(BaseNamespace):
         self.prefixes = BaseNamespace(data["prefixes"])
         self.redis = BaseNamespace(data["redis"])
         self.logging = BaseNamespace(data["logging"])
+        self.nats = BaseNamespace(data["nats"])
+        self.prometheus = BaseNamespace(data["prometheus"])

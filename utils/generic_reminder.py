@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Tuple, Any
-    from .bot import BotMixin
+    from bot import Bot
 
 __slots__ = "Reminder"
 
 class Reminder(commands.Cog):
-    def __init__(self, bot: BotMixin):
+    def __init__(self, bot: Bot):
         self.bot = bot
         self.name = self.__class__.__name__.lower()
         self.loop.start()

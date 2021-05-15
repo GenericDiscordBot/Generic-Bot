@@ -2,5 +2,5 @@
 	path = web
 	url = git@github.com:GenericDiscordBot/Dashboard.git
 [submodule "http-server"]
-	path = http-server
+	path = httpserver
 	url = git@github.com:GenericDiscordBot/http-server.git

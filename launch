@@ -18,6 +18,14 @@ List = _List()
 @click.option("--shard_ids", type=List, default=None)
 @click.option("--shard_count", type=int, default=None)
 def run(config, shard_count, shard_ids, shard_id):
-    Bot.run(config, shard_ids=shard_ids, shard_count=shard_count, shard_id=shard_id)
+    kwargs  = {}
+    if shard_count is not None:
+        kwargs["shard_count"] = shard_count
+    if shard_id is not None:
+        kwargs["shard_id"] = shard_id
+    if shard_ids is not None:
+        kwargs["shard_ids"] = shard_ids
+    
+    Bot.run(config, **kwargs)
 
 run()

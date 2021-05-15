@@ -18,33 +18,22 @@ class Prefixes(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
     
-    @utils.group(aliases=["prefixes", "prefixs"], invoke_without_command=True)
+    @utils.group(invoke_without_command=True)
     @commands.guild_only()
-    async def prefix(self, ctx: utils.Context):
+    async def prefix(self, ctx: utils.Context, new_prefix: str = None):
         """Prefix commands"""
-        prefixes = await ctx.bot.get_guild_prefixes(ctx.guild.id)
 
-        string = "\n".join(prefixes)
+        if new_prefix:
+            if len(new_prefix) > self.bot.config.prefixes.max_length:
+                raise commands.BadArgument("Prefix is too long.")
 
-        await ctx.send(f"Current prefix(s) are:\n{string}")
+            await ctx.bot.set_guild_prefix(ctx.guild.id, new_prefix)
+            return await ctx.send(f"Set prefix to `{new_prefix}`.")
+            
+        prefix = await ctx.bot.get_guild_prefix(ctx.guild.id)
 
-    @prefix.command()
-    async def add(self, ctx: utils.Context, prefix: str):
-        """Adds a guild prefix"""
-        if len(prefix) > self.bot.config.prefixes.max_length:
-            raise commands.BadArgument("Prefix is too long.")
+        await ctx.send(f"Current prefix is: {prefix}")
 
-        await ctx.bot.add_guild_prefix(ctx.guild.id, prefix)
-        return await ctx.send(f"Added prefix `{prefix}`.")
-
-    @prefix.command()
-    async def remove(self, ctx: utils.Context, prefix: str):
-        """Removes a guild prefix"""
-        status = await self.bot.remove_guild_prefix(ctx.guild.id, prefix)
-        if status:
-            await ctx.send(f"Removed `{prefix}` from the guilds prefixes.")
-        else:
-            await ctx.send("That prefix doesnt exist.")
 
 def setup(bot: Bot):
     bot.add_cog(Prefixes(bot))
