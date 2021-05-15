@@ -1,0 +1,3 @@
+aiohttp
+asyncio-nats-client
+toml
